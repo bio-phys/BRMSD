@@ -1,5 +1,5 @@
 """
-BRMSD align  —  average structure and entropy-optimal per-atom weights
+BRMSD align  —  average structure and Bayes-optimal per-atom weights
 
 SYNOPSIS
 
@@ -8,7 +8,7 @@ SYNOPSIS
 DESCRIPTION
 
     Computes the Bayesian RMSD (BRMSD) average structure and per-atom weights
-    for a trajectory by minimising the maximum-entropy free energy:
+    for a trajectory by minimising the Bayesian free energy:
 
         G = Σ_i min_R Σ_α w_α |s_α - R r_{i,α}|² + θ Σ_α w_α ln(w_α / W_α)
 

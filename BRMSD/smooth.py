@@ -1,5 +1,5 @@
 """
-BRMSD smooth  —  trajectory smoothing with per-frame entropy-optimal weights
+BRMSD smooth  —  trajectory smoothing with per-frame Bayes-optimal weights
 
 SYNOPSIS
 
