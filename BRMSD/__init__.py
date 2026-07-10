@@ -1,12 +1,12 @@
 """
-BRMSD — Maximum-Entropy RMSD Structural Alignment
+BRMSD — Bayesian RMSD Structural Alignment
 
 Modules
 -------
 core    : shared utilities (Kabsch rotation, trajectory I/O, logging)
 align   : average structure + optimal atom weights
 smooth  : trajectory smoothing
-cluster : clustering (cluster-center finding and soft K-means)
+cluster : soft K-means clustering
 domain  : rigid domain identification
 focus   : focused alignment biased toward a specific domain
 """

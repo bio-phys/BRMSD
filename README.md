@@ -1,16 +1,16 @@
 # BRMSD
 
-**Maximum-entropy RMSD alignment, smoothing, and clustering for molecular dynamics trajectories.**
+**Bayesian RMSD alignment, smoothing, clustering, and domain identification for molecular dynamics trajectories.**
 
-BRMSD implements a maximum-entropy framework for structure-based analysis of MD trajectories. Unlike standard RMSD, which weights all atoms equally, BRMSD simultaneously optimises per-atom weights and structural quantities (average structure, cluster centers, smoothed frames) so that rigid, well-aligned atoms automatically receive high weight and flexible or disordered regions are down-weighted. The result is a self-consistent, entropy-regularised description of structural variability.
+BRMSD implements a Bayesian framework for structure-based analysis of MD trajectories. Unlike standard RMSD, which weights all atoms equally, BRMSD simultaneously optimises per-atom weights and structural quantities (average structure, cluster centers, smoothed frames) so that rigid, well-aligned atoms automatically receive high weight and flexible or disordered regions are down-weighted. The result is a self-consistent, Bayes-optimal description of structural variability.
 
 ---
 
 ## Features
 
-- **Alignment** — find the maximum-entropy average structure and optimal per-atom weights for a trajectory
+- **Alignment** — find the Bayes-optimal average structure and optimal per-atom weights for a trajectory
 - **Smoothing** — replace each frame with a temporally-windowed average, suppressing thermal noise while preserving slow conformational changes
-- **Clustering** — identify cluster centers from all seeds or run soft K-means, both with per-cluster per-atom weights
+- **Clustering** — soft K-means with per-cluster per-atom weights
 - **Domain identification** — identify K rigid domains by sequential peeling (default) or simultaneous optimisation with a mutual-overlap penalty
 - **Focused alignment** — bias the weight distribution toward a user-specified domain to obtain a domain-centric average structure
 - All inner loops use batched SVD (one LAPACK call per alignment step) and joblib parallelism where applicable
@@ -36,7 +36,7 @@ Any Python version from 3.8 to 3.12 is supported. Python 3.11 is recommended for
 #### From source
 
 ```bash
-git clone https://github.com/chemgame/BRMSD.git
+git clone https://github.com/bio-phys/BRMSD.git
 cd BRMSD
 pip install .
 ```
@@ -44,7 +44,7 @@ pip install .
 #### Development install (editable, for contributors)
 
 ```bash
-git clone https://github.com/chemgame/BRMSD.git
+git clone https://github.com/bio-phys/BRMSD.git
 cd BRMSD
 pip install -e .
 ```
@@ -104,13 +104,13 @@ BRMSD focus -f traj.xtc -s topol.tpr -sel "name BB" -dom "resid 1:30" -sg 0.5 -m
 
 ## Theory
 
-All methods minimise a maximum-entropy free energy of the form
+All methods minimise a Bayesian free energy (the negative log-posterior) of the form
 
 ```
 G = (structural fit term) + θ · Σ_α w_α ln(w_α / W_α)
 ```
 
-where `w_α` are per-atom weights, `W_α` is a prior (uniform by default), and `σ` (Å) controls the sharpness of the weight distribution. Internally **θ = M·σ²**, where M is the number of structures. (For smoothing the windowed deviation is already a per-structure mean, so θ = σ²; clustering uses a single constant θ = M·σ² (matching the manuscript functional, so the soft-K-means free energy stays a fixed objective).) Only the M factor appears — it is what makes the converged weights independent of sample size in the weight-update rule; the atom count N does not enter, so σ has the same meaning regardless of selection/pool size. The weight-update exponent reduces to ⟨MSF_α⟩/σ²:
+where `w_α` are per-atom weights, `W_α` is a prior (uniform by default), and `σ` (Å) controls the sharpness of the weight distribution. Internally **θ = M·σ²**, where M is the number of structures. (For smoothing the windowed deviation is already a per-structure mean, so θ = σ²; clustering uses a single constant θ = M·σ².) Only the M factor appears — it is what makes the converged weights independent of sample size in the weight-update rule; the atom count N does not enter, so σ has the same meaning regardless of selection/pool size. The weight-update exponent reduces to ⟨MSF_α⟩/σ²:
 
 - **Small σ** — weights sharpen onto the most rigid atoms only
 - **Large σ** — weights stay near-uniform (approaches standard RMSD)
@@ -123,7 +123,7 @@ The structural fit term and the variable being optimised differ between subcomma
 
 ### `BRMSD align` — average structure and per-atom weights
 
-Finds the self-consistent average structure and per-atom weights `w_α` that minimise the maximum-entropy free energy over the whole trajectory.
+Finds the self-consistent average structure and per-atom weights `w_α` that minimise the Bayesian free energy over the whole trajectory.
 
 ```bash
 BRMSD align \
@@ -363,6 +363,41 @@ BRMSD focus \
 | `rmsd_focus.dat` | Per-frame BRMSD per iteration |
 | `rmsf_focus.dat` | Per-atom RMSF per iteration |
 | `weights_focus.dat` | Converged per-atom weights (sum to 1); atoms in D carry elevated weight |
+
+---
+
+### `BRMSD sweep` — parameter scan for any module
+
+Scans one parameter of any BRMSD module over a range of values and writes a CSV of quality diagnostics, so you can choose an operating point (σ, τ, K, μ, window width, or mask threshold) instead of guessing.
+
+```bash
+# Screen the number of clusters K (Calinski-Harabasz / Davies-Bouldin / free energy)
+BRMSD sweep -m cluster --mode K -f traj.xtc -s topol.tpr -sel "name BB" \
+  --range 2 8 7 --sigma 4.0 --tau 2.0 -o cluster_K_sweep.csv
+
+# Find the alignment σ (log-spaced scan)
+BRMSD sweep -m align --mode sigma -f traj.xtc -s topol.tpr -sel "name BB" \
+  --range 0.1 10 20 --log-space -o align_sigma_sweep.csv
+
+# Scan the smoothing window width
+BRMSD sweep -m smooth --mode window -f traj.xtc -s topol.tpr -sel "name BB" \
+  --list 5 10 20 40 --sigma 0.5 -o smooth_window_sweep.csv
+```
+
+**Key options:**
+
+| Flag | Description |
+|------|-------------|
+| `-m` / `--module` | Module to sweep: `align` \| `cluster` \| `focus` \| `domain` \| `smooth` |
+| `--mode` | Parameter to sweep: `sigma` \| `tau` \| `K` \| `mu` \| `mask_thr` \| `window` (must be valid for the chosen module) |
+| `--range MIN MAX N` | Sweep N values from MIN to MAX |
+| `--list VAL …` | Explicit list of values (alternative to `--range`) |
+| `--log-space` | Log-spaced values with `--range` (recommended for σ) |
+| `--sigma` / `--tau` / `-K` / … | Fixed value for any parameter that is *not* being swept |
+| `-dom` / `--domain-sel` | Focus domain (required for `focus` / `mu` sweeps) |
+| `-o` / `--out` | Output CSV [`{module}_{mode}_sweep.csv`] |
+
+The output CSV has the swept parameter in the first column and the module's quality metrics in the rest. Integer modes (`K`, `window`, and `mask_thr` steps) are rounded and de-duplicated.
 
 ---
 
