@@ -80,24 +80,24 @@ All dependencies are installed automatically by pip.
 
 ```bash
 # Align trajectory and find average structure
-BRMSD align -f traj.xtc -s topol.tpr -sel "name BB" -sg 0.5
+BRMSD align -f traj.xtc -s topol.tpr -sel "protein" -sg 0.5
 
 # Smooth trajectory (suppress thermal noise)
-BRMSD smooth -f traj.xtc -s topol.tpr -sel "name BB" -W 10 -sg 0.5 -j 8
+BRMSD smooth -f traj.xtc -s topol.tpr -sel "protein" -W 10 -sg 0.5 -j 8
 
 # Cluster into 3 states (soft K-means)
-BRMSD cluster -f traj.xtc -s topol.tpr -sel "name BB" -A 3 -sg 0.1 -tau 2.0
+BRMSD cluster -f traj.xtc -s topol.tpr -sel "protein" -A 3 -sg 0.1 -tau 2.0
 
 # Identify rigid domains (sequential peeling, 3 domains by default)
-BRMSD domain -f traj.xtc -s topol.tpr -sel "name BB" -sg 0.05
+BRMSD domain -f traj.xtc -s topol.tpr -sel "protein" -sg 0.05
 
 # Write per-frame rotation vectors for post-analysis / dimensionality reduction
-BRMSD align -f traj.xtc -s topol.tpr -sel "name BB" -rot rotations.dat -rfmt rotvec
-BRMSD domain -f traj.xtc -s topol.tpr -sel "name BB" -rot rot.dat -rfmt quaternion
+BRMSD align -f traj.xtc -s topol.tpr -sel "protein" -rot rotations.dat -rfmt rotvec
+BRMSD domain -f traj.xtc -s topol.tpr -sel "protein" -rot rot.dat -rfmt quaternion
 # → rot_domain1.dat, rot_domain2.dat, rot_domain3.dat
 
 # Focused alignment biased toward a specific domain
-BRMSD focus -f traj.xtc -s topol.tpr -sel "name BB" -dom "resid 1:30" -sg 0.5 -mr 1.0
+BRMSD focus -f traj.xtc -s topol.tpr -sel "protein" -dom "resid 1:30" -sg 0.5 -mr 1.0
 ```
 
 ---
@@ -128,7 +128,7 @@ Finds the self-consistent average structure and per-atom weights `w_α` that min
 ```bash
 BRMSD align \
   -f traj.xtc -s topol.tpr \
-  -sel "name BB" \
+  -sel "protein" \
   -ax xyz \
   -sg 0.5 -max 100 -tol 1e-3 \
   -b 0 -e 100000 -dt 20 \
@@ -175,7 +175,7 @@ Replaces each frame `j` with a weighted average of its temporal neighbours withi
 ```bash
 BRMSD smooth \
   -f traj.xtc -s topol.tpr \
-  -sel "name BB" \
+  -sel "protein" \
   -W 10 -win triangular \
   -sg 0.5 -max 100 -tol 1e-3 \
   -j 8 \
@@ -216,7 +216,7 @@ Simultaneously optimises `A` cluster centers, per-cluster per-atom weights, and 
 ```bash
 BRMSD cluster \
   -f traj.xtc -s topol.tpr \
-  -sel "name BB" \
+  -sel "protein" \
   -A 3 \
   -sg 0.1 -tau 2.0 \
   -max 100 -tol 1e-3 \
@@ -265,7 +265,7 @@ Identifies K rigid domains using one of two modes selected with `--peeling-mode`
 # Sequential peeling (default)
 BRMSD domain \
   -f traj.xtc -s topol.tpr \
-  -sel "name BB" \
+  -sel "protein" \
   -sg 0.05 -nd 3 -nr 5 \
   -max 100 -tol 1e-3 \
   -b 0 -e 100000 -dt 20 \
@@ -277,7 +277,7 @@ BRMSD domain \
 # Simultaneous K-domain with overlap penalty
 BRMSD domain \
   -f traj.xtc -s topol.tpr \
-  -sel "name BB" \
+  -sel "protein" \
   -pm simultaneous \
   -sg 0.05 -mu 1.0 -nd 3 -nr 5 \
   -max 100 -tol 1e-3 \
@@ -372,15 +372,15 @@ Scans one parameter of any BRMSD module over a range of values and writes a CSV 
 
 ```bash
 # Screen the number of clusters K (Calinski-Harabasz / Davies-Bouldin / free energy)
-BRMSD sweep -m cluster --mode K -f traj.xtc -s topol.tpr -sel "name BB" \
+BRMSD sweep -m cluster --mode K -f traj.xtc -s topol.tpr -sel "protein" \
   --range 2 8 7 --sigma 4.0 --tau 2.0 -o cluster_K_sweep.csv
 
 # Find the alignment σ (log-spaced scan)
-BRMSD sweep -m align --mode sigma -f traj.xtc -s topol.tpr -sel "name BB" \
+BRMSD sweep -m align --mode sigma -f traj.xtc -s topol.tpr -sel "protein" \
   --range 0.1 10 20 --log-space -o align_sigma_sweep.csv
 
 # Scan the smoothing window width
-BRMSD sweep -m smooth --mode window -f traj.xtc -s topol.tpr -sel "name BB" \
+BRMSD sweep -m smooth --mode window -f traj.xtc -s topol.tpr -sel "protein" \
   --list 5 10 20 40 --sigma 0.5 -o smooth_window_sweep.csv
 ```
 
@@ -469,7 +469,7 @@ from BRMSD import (load_frames, BRMSD_iterate, BRMSD_smooth,
 
 # Load trajectory
 u = mda.Universe("topol.tpr", "traj.xtc")
-sel = u.select_atoms("name BB")
+sel = u.select_atoms("protein")
 all_pos, times = load_frames(u, sel.indices, list(range(500)))
 
 axes = [0, 1, 2]   # xyz
