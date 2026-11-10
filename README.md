@@ -17,6 +17,8 @@ BRMSD implements a Bayesian framework for structure-based analysis of MD traject
 - Reads any trajectory format supported by MDAnalysis (XTC, TRR, DCD, …)
 
 ---
+> **If you use BRMSD in your research, please cite:**
+> Mukherjee, S.; Hummer, G. Bayesian Learning of Distance Metrics Beyond RMSD for Biomolecule Alignment, Clustering, and Domain Identification.  J. Chem. Theory Comput. 2026, 22, 10475–10487. DOI: [https://doi.org/10.1021/acs.jctc.6c01395](10.1021/acs.jctc.6c01395)
 
 ## Installation
 
