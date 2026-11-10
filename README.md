@@ -7,7 +7,6 @@ BRMSD implements a Bayesian framework for structure-based analysis of MD traject
 ---
 
 ## Features
-
 - **Alignment** — find the Bayes-optimal average structure and optimal per-atom weights for a trajectory
 - **Smoothing** — replace each frame with a temporally-windowed average, suppressing thermal noise while preserving slow conformational changes
 - **Clustering** — soft K-means with per-cluster per-atom weights
@@ -40,7 +39,9 @@ BRMSD implements a Bayesian framework for structure-based analysis of MD traject
 ```
 
 </details>
+
 ---
+
 ## Installation
 
 We recommend installing BRMSD in a dedicated conda environment to avoid dependency conflicts.
