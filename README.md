@@ -16,10 +16,28 @@ BRMSD implements a Bayesian framework for structure-based analysis of MD traject
 - All inner loops use batched SVD (one LAPACK call per alignment step) and joblib parallelism where applicable
 - Reads any trajectory format supported by MDAnalysis (XTC, TRR, DCD, …)
 
----
 > **If you use BRMSD in your research, please cite:**
 > Mukherjee, S.; Hummer, G. Bayesian Learning of Distance Metrics Beyond RMSD for Biomolecule Alignment, Clustering, and Domain Identification.  J. Chem. Theory Comput. 2026, 22, 10475–10487. DOI: [https://doi.org/10.1021/acs.jctc.6c01395](10.1021/acs.jctc.6c01395)
 
+<details>
+<summary>BibTeX</summary>
+
+```bibtex
+@misc{mukherjee2026brmsd,
+  
+  author    = {Mukherjee, Saumyak},
+  title     = {{BEER}: Biophysical Evaluation Engine for Residues},
+  year      = {2025},
+  eprint    = {2504.20561},
+  archivePrefix = {arXiv},
+  primaryClass  = {q-bio.QM},
+  doi       = {10.48550/arXiv.2504.20561},
+  url       = {https://arxiv.org/abs/2504.20561},
+}
+```
+
+</details>
+---
 ## Installation
 
 We recommend installing BRMSD in a dedicated conda environment to avoid dependency conflicts.
