@@ -23,16 +23,19 @@ BRMSD implements a Bayesian framework for structure-based analysis of MD traject
 <summary>BibTeX</summary>
 
 ```bibtex
-@misc{mukherjee2026brmsd,
-  
-  author    = {Mukherjee, Saumyak},
-  title     = {{BEER}: Biophysical Evaluation Engine for Residues},
-  year      = {2025},
-  eprint    = {2504.20561},
-  archivePrefix = {arXiv},
-  primaryClass  = {q-bio.QM},
-  doi       = {10.48550/arXiv.2504.20561},
-  url       = {https://arxiv.org/abs/2504.20561},
+@article{Mukherjee2026brmsd,
+    author = {Mukherjee, Saumyak and Hummer, Gerhard},
+    title = {Bayesian Learning of Distance Metrics Beyond RMSD for Biomolecule Alignment, Clustering, and Domain Identification},
+    journal = {Journal of Chemical Theory and Computation},
+    volume = {22},
+    number = {19},
+    pages = {10475-10487},
+    year = {2026},
+    month = {10},
+    issn = {1549-9618},
+    doi = {10.1021/acs.jctc.6c01395},
+    url = {https://doi.org/10.1021/acs.jctc.6c01395},
+    eprint = {https://pubs.acs.org/jctcce/article-pdf/22/19/10475/68722013/acs.jctc.6c01395.pdf},
 }
 ```
 
